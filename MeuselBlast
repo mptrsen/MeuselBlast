@@ -260,7 +260,7 @@ sub do_version {
 # input: the same as &slurp_BLAST_result (s.a.)
 # output: the same as &slurp_BLAST_result (s.a.)
 
-sub slurp_BLAST_result_using_SearchIO {
+sub slurp_BLAST_result {
 
 	my $blast_result_file = shift @_;
 
