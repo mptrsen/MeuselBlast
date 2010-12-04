@@ -6,7 +6,7 @@ use Getopt::Std;
 use Bio::Seq;		# handle sequence objects
 use Bio::SeqIO;		# handle sequence files
 use Bio::SearchIO;	# handle e.g. BLAST report files
-#TODO use Tie::File;	do it
+#TODO use Tie::File;	
 
 my $version = '0.2.1';
 my $usage = '-B <BLAST result> -T <contig Trace list> [-R <Reads (raw data)>] [-C <Contigs (processed)>] [-S <search string>] [-t <reads threshold>] [-i <identities threshold>] [-s [LIR]] [-a] [-n] [-v]';
