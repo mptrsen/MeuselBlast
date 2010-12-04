@@ -116,7 +116,6 @@ print $logfh "\n";
 
 # read BLAST result file, print out result
 
-#$contig_data = &slurp_BLAST_result_using_SearchIO(\$blast_result_file);
 $contig_data = &slurp_BLAST_result(\$blast_result_file);
 
 print "\n";
@@ -258,73 +257,6 @@ sub do_version {
 #-------------------------------------------
 
 # sub: slurp_BLAST_result
-# input: BLAST result file name
-# output: reference to contig data hash
-
-sub slurp_BLAST_result {
-
-	open(my $fh_blast_result_file, '<', ${shift @_}) or die "Wah: no open $blast_result_file for reading: $!\n";
-	print "reading BLAST result file $blast_result_file\n";
-	print $logfh "reading BLAST result file $blast_result_file\n";
-
-	# this is the hash that will hold all the contig data
-	# it is bound to become 3-dimensional
-	my $contig_data = {  };
-	my $contig_id;
-	my ($id_count, $length_count, $idents_count);
-	while (<$fh_blast_result_file>) {
-		++$count;
-		chomp;
-		if ( /^>[a-z]+(\d+)\|(.+)/i ) {
-			die "error in BLAST result file $blast_result_file: contig ID $contig_id does not have matching 'length' record, exiting\n"
-				if ($contig_id and not defined $contig_data->{$contig_id}{'length'});
-			die "error in BLAST result file $blast_result_file: contig ID $contig_id does not have matching 'identities' record, exiting\n"
-				if ($contig_id and not defined $contig_data->{$contig_id}{'idents'});
-		# TODO do something so that the search string becomes relevant...
-			next if exists $contig_data->{$1};
-			$contig_id = $1;
-			$contig_data->{$contig_id} = { 'string' => $2 };
-			$contig_data->{$contig_id}{'string'} =~ s/\W+$//;
-			$contig_data->{$contig_id}{'string'} =~ s/\W/_/g;
-			++$id_count;
-			
-		}
-		elsif ( /Length\s=\s(\d+)/ ) {
-			next if defined $contig_data->{$contig_id}{'length'};
-			$contig_data->{$contig_id}{'length'} = $1;
-			++$length_count;
-		}
-		elsif ( /Identities\s=\s\d+\/\d+\s\((\d+)/ ) {
-			next if defined $contig_data->{$contig_id}{'idents'};
-			$contig_data->{$contig_id}{'idents'} = $1;
-			++$idents_count;
-		}
-		elsif ( /^Query=\s[a-z]+(\d+)\|(\w+)/i ) {
-			printf "query ID: %s\n", $1;
-			printf $logfh "query ID: %s\n", $1;
-		}
-	}
-	close $$fh_blast_result_file;
-
-	die "Corrupt BLAST result file? Contig IDs, lengths and/or perc_id do not match in $blast_result_file\n"
-		unless ( ($id_count + $length_count + $idents_count) % 3 == 0 );
-
-	foreach my $key (keys %$contig_data) {
-		delete $contig_data->{$key} 
-			unless $contig_data->{$key}{'string'} =~ /$search_string/i;
-	}
-
-
-	# by now the hash in $contig_data is hopefully filled with arrays
-	# that contain: contig string, length, identities
-	return $contig_data;
-
-}
-
-
-#-------------------------------------------
-
-# sub: slurp_BLAST_result_using_SearchIO
 # input: the same as &slurp_BLAST_result (s.a.)
 # output: the same as &slurp_BLAST_result (s.a.)
 
