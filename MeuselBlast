@@ -116,7 +116,6 @@ print $logfh "\n";
 
 # read BLAST result file, print out result
 
-#$contig_data = &slurp_BLAST_result_using_SearchIO(\$blast_result_file);
 $contig_data = &slurp_BLAST_result(\$blast_result_file);
 
 print "\n";
@@ -319,37 +318,6 @@ sub slurp_BLAST_result {
 	# that contain: contig string, length, identities
 	return $contig_data;
 
-}
-
-
-#-------------------------------------------
-
-# sub: slurp_BLAST_result_using_SearchIO
-# input: the same as &slurp_BLAST_result (s.a.)
-# output: the same as &slurp_BLAST_result (s.a.)
-
-sub slurp_BLAST_result_using_SearchIO {
-
-	my $blast_result_file = shift @_;
-
-	my $blast_result_file_obj = Bio::SearchIO->new( -file => $$blast_result_file, -format => 'blast' );
-	while (my $result_obj = $blast_result_file_obj->next_result) {
-		while (my $hit_obj = $result_obj->next_hit) {
-			while (my $hsp_obj = $hit_obj->next_hsp) {
-				if ($hit_obj->name =~ /$search_string/i) {
-					$hit_obj->name =~ /\D*(\d+)\|(.+)/;
-					$contig_id = $1;
-					$contig_data->{$contig_id} = { 'string' => $2 };
-					$contig_data->{$contig_id}{'string'} =~ s/\W+$//;
-					$contig_data->{$contig_id}{'string'} =~ s/\W/_/g;
-
-					$contig_data->{$contig_id}{'length'} = $hsp_obj->length('total');
-					$contig_data->{$contig_id}{'idents'} = $hsp_obj->percent_identity;
-				}
-			}
-		}
-	}
-	return $contig_data;
 }
 
 
